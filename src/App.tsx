@@ -12,6 +12,10 @@ import { AppLayout } from './components/layout/AppLayout';
 import { ProjectListPage } from './pages/projects/ProjectListPage';
 import { ProjectSettingsPage } from './pages/projects/ProjectSettingsPage';
 import { ProjectDashboardPage } from './pages/dashboard/ProjectDashboardPage';
+import { SessionListPage } from './pages/sessions/SessionListPage';
+import { SessionDetailPage } from './pages/sessions/SessionDetailPage';
+import { UserListPage } from './pages/users/UserListPage';
+import { UserProfilePage } from './pages/users/UserProfilePage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -50,6 +54,10 @@ export const App = () => {
             <Route index element={<ProjectListPage />} />
             <Route path=":id/dashboard" element={<ProjectDashboardPage />} />
             <Route path=":id/settings" element={<ProjectSettingsPage />} />
+            <Route path=":id/sessions" element={<SessionListPage />} />
+            <Route path=":id/sessions/:sessionId" element={<SessionDetailPage />} />
+            <Route path=":id/users" element={<UserListPage />} />
+            <Route path=":id/users/:userId" element={<UserProfilePage />} />
           </Route>
           
           <Route path="/" element={<Navigate to="/projects" replace />} />
