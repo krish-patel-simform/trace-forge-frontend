@@ -81,11 +81,11 @@ export const ProjectDashboardPage: React.FC = () => {
 
         const [overviewRes, timeSeriesRes, pagesRes, referrersRes, systemsRes] =
           await Promise.all([
-            api.get(`/api/projects/${id}/analytics/overview`, { params }),
-            api.get(`/api/projects/${id}/analytics/timeseries`, { params }),
-            api.get(`/api/projects/${id}/analytics/pages`, { params }),
-            api.get(`/api/projects/${id}/analytics/referrers`, { params }),
-            api.get(`/api/projects/${id}/analytics/systems`, { params }),
+            api.get(`/projects/${id}/analytics/overview`, { params }),
+            api.get(`/projects/${id}/analytics/timeseries`, { params }),
+            api.get(`/projects/${id}/analytics/pages`, { params }),
+            api.get(`/projects/${id}/analytics/referrers`, { params }),
+            api.get(`/projects/${id}/analytics/systems`, { params }),
           ]);
 
         setOverview(overviewRes.data);
