@@ -17,7 +17,7 @@ export const useLiveEvents = (maxEvents = 20) => {
     if (!socket || !isConnected) return;
 
     // Listen to various event types
-    const eventTypes = ["pageview", "click", "scroll", "search", "custom", "test_button_clicked"];
+    const eventTypes = ["page_view", "click", "scroll", "search", "custom"];
 
     const handleNewEvent = (data: Omit<LiveEvent, "id">, eventType: string) => {
       const newEvent: LiveEvent = {

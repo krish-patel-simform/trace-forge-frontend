@@ -58,6 +58,12 @@ type ClickData = {
   uniqueUsers: number;
 };
 
+type SearchData = {
+  query: string;
+  searches: number;
+  uniqueUsers: number;
+};
+
 type CustomEventData = {
   eventName: string;
   occurrences: number;
@@ -93,6 +99,7 @@ export const ProjectDashboardPage: React.FC = () => {
   }>({ browsers: [], os: [], devices: [] });
 
   const [topClicks, setTopClicks] = useState<ClickData[]>([]);
+  const [topSearches, setTopSearches] = useState<SearchData[]>([]);
   const [customEvents, setCustomEvents] = useState<CustomEventData[]>([]);
   const [scrollDepths, setScrollDepths] = useState<ScrollData[]>([]);
   const [selectedScrollPath, setSelectedScrollPath] = useState<string>("");
@@ -109,7 +116,7 @@ export const ProjectDashboardPage: React.FC = () => {
           endDate: dateRange.endDate.toISOString(),
         };
 
-        const [overviewRes, timeSeriesRes, pagesRes, referrersRes, systemsRes, clicksRes, customRes, scrollRes] =
+        const [overviewRes, timeSeriesRes, pagesRes, referrersRes, systemsRes, clicksRes, searchesRes, customRes, scrollRes] =
           await Promise.all([
             api.get(`/projects/${id}/analytics/overview`, { params }),
             api.get(`/projects/${id}/analytics/timeseries`, { params }),
@@ -117,6 +124,7 @@ export const ProjectDashboardPage: React.FC = () => {
             api.get(`/projects/${id}/analytics/referrers`, { params }),
             api.get(`/projects/${id}/analytics/systems`, { params }),
             api.get(`/projects/${id}/analytics/engagement/clicks`, { params }),
+            api.get(`/projects/${id}/analytics/engagement/searches`, { params }),
             api.get(`/projects/${id}/analytics/engagement/custom`, { params }),
             api.get(`/projects/${id}/analytics/engagement/scroll`, { params }),
           ]);
@@ -136,6 +144,7 @@ export const ProjectDashboardPage: React.FC = () => {
         setReferrers(referrersRes.data);
         setSystems(systemsRes.data);
         setTopClicks(clicksRes.data);
+        setTopSearches(searchesRes.data);
         setCustomEvents(customRes.data);
         setScrollDepths(scrollRes.data);
         
@@ -313,6 +322,25 @@ export const ProjectDashboardPage: React.FC = () => {
                 ),
               },
               { header: "Clicks", accessorKey: "clicks" },
+              { header: "Users", accessorKey: "uniqueUsers" },
+            ]}
+          />
+        </div>
+        
+        {/* Top Searches */}
+        <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-xl shadow-sm overflow-hidden flex flex-col">
+          <div className="p-6 border-b border-gray-200 dark:border-dark-border flex items-center gap-2">
+            <AppWindow className="w-5 h-5 text-primary-500" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Top Searches
+            </h3>
+          </div>
+          <DataTable
+            data={topSearches}
+            keyExtractor={(item) => item.query}
+            columns={[
+              { header: "Query", accessorKey: "query", cell: (item) => <span className="font-medium">"{item.query}"</span> },
+              { header: "Searches", accessorKey: "searches" },
               { header: "Users", accessorKey: "uniqueUsers" },
             ]}
           />
