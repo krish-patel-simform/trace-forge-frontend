@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Activity, Folder, Settings, LogOut } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useProjects } from '../../contexts/ProjectContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useProjects } from '../../hooks/useProjects';
 
 export const AppLayout: React.FC = () => {
   const { user, logout } = useAuth();

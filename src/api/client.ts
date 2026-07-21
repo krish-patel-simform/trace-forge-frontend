@@ -34,7 +34,7 @@ apiClient.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return apiClient(originalRequest);
         }
-      } catch (e) {
+      } catch {
         localStorage.removeItem("tf_access_token");
         localStorage.removeItem("tf_refresh_token");
         window.location.href = "/login";

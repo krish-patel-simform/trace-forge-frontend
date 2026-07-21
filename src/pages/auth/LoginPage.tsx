@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
+import { isAxiosError } from 'axios';
 import { apiClient } from '../../api/client';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -25,34 +26,47 @@ export const LoginPage: React.FC = () => {
       const { user, accessToken, refreshToken } = res.data.data;
       login(accessToken, refreshToken, user);
       navigate('/projects');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    } catch (err) {
+      if (isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Login failed. Please try again.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:via-[#121212] dark:to-gray-900 p-4 relative overflow-hidden">
+      {/* Decorative background blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-500/20 dark:bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-indigo-500/10 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="w-full max-w-[420px] relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
         <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-2">
-            <div className="bg-primary-600 p-2 rounded-xl text-white shadow-lg shadow-primary-500/30">
-              <Activity className="w-6 h-6" />
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-tr from-primary-600 to-primary-400 p-2.5 rounded-xl text-white shadow-lg shadow-primary-500/40 transform transition-transform hover:scale-105 duration-300">
+              <Activity className="w-7 h-7" />
             </div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400">
+            <span className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
               TraceForge
             </span>
           </div>
         </div>
         
-        <Card glass className="p-8">
-          <h1 className="text-2xl font-semibold mb-2">Welcome back</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Sign in to manage your analytics</p>
+        <Card className="p-10 shadow-2xl border border-white/50 dark:border-white/5 backdrop-blur-xl bg-white/90 dark:bg-dark-card/90 rounded-2xl relative overflow-hidden">
+          {/* Subtle top highlight */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-400 to-indigo-500 opacity-80" />
           
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome back</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Sign in to manage your analytics workspace</p>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-5">
             <Input 
-              label="Email" 
+              label="Email Address" 
               type="email" 
               placeholder="you@example.com" 
               value={email}
@@ -68,15 +82,29 @@ export const LoginPage: React.FC = () => {
               required
             />
             
-            {error && <div className="text-red-500 text-sm p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">{error}</div>}
+            {error && (
+              <div className="text-red-600 dark:text-red-400 text-sm p-3.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl font-medium flex items-start gap-2 animate-in fade-in duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            )}
             
-            <Button type="submit" className="w-full mt-2" isLoading={loading}>
+            <Button 
+              type="submit" 
+              className="w-full mt-2 py-2.5 text-[15px] shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 hover:-translate-y-0.5" 
+              isLoading={loading}
+            >
               Sign In
             </Button>
           </form>
           
-          <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            Don't have an account? <Link to="/register" className="text-primary-600 hover:text-primary-500 font-medium">Create one</Link>
+          <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800/60 text-center text-[14px] text-gray-500 dark:text-gray-400">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-primary-600 dark:text-primary-400 hover:text-primary-500 font-semibold transition-colors">
+              Create one here
+            </Link>
           </div>
         </Card>
       </div>

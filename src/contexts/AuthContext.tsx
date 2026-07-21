@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient } from '../api/client';
+import React, { createContext, useState, useEffect } from "react";
+import { apiClient } from "../api/client";
+import { isAxiosError } from "axios";
 
 interface User {
   id: string;
@@ -14,21 +15,31 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('tf_access_token');
+      const token = localStorage.getItem("tf_access_token");
       if (token) {
         try {
-          const res = await apiClient.get('/auth/me');
+          const res = await apiClient.get("/auth/me");
           setUser(res.data.user);
         } catch (error) {
-          console.error("Failed to fetch user", error);
+          if (isAxiosError(error) && error.response?.status === 401) {
+            localStorage.removeItem("tf_access_token");
+            localStorage.removeItem("tf_refresh_token");
+          } else {
+            console.error("Failed to fetch user", error);
+          }
         }
       }
       setLoading(false);
@@ -38,16 +49,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = (accessToken: string, refreshToken: string, userData: User) => {
-    localStorage.setItem('tf_access_token', accessToken);
-    localStorage.setItem('tf_refresh_token', refreshToken);
+    localStorage.setItem("tf_access_token", accessToken);
+    localStorage.setItem("tf_refresh_token", refreshToken);
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem('tf_access_token');
-    localStorage.removeItem('tf_refresh_token');
+    localStorage.removeItem("tf_access_token");
+    localStorage.removeItem("tf_refresh_token");
     setUser(null);
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   return (
@@ -55,12 +66,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
