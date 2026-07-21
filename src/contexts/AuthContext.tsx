@@ -8,7 +8,7 @@ interface User {
   email: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (accessToken: string, refreshToken: string, user: User) => void;
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (token) {
         try {
           const res = await apiClient.get("/auth/me");
-          setUser(res.data.user);
+          setUser(res.data.data.user);
         } catch (error) {
           if (isAxiosError(error) && error.response?.status === 401) {
             localStorage.removeItem("tf_access_token");

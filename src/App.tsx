@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import { ProjectProvider } from './contexts/ProjectContext';
+import { SocketProvider } from './contexts/socket.context';
 
 // Pages
 import { LoginPage } from './pages/auth/LoginPage';
@@ -39,7 +40,9 @@ export const App = () => {
             element={
               <ProtectedRoute>
                 <ProjectProvider>
-                  <AppLayout />
+                  <SocketProvider>
+                    <AppLayout />
+                  </SocketProvider>
                 </ProjectProvider>
               </ProtectedRoute>
             }

@@ -11,7 +11,7 @@ export interface Project {
   createdAt: string;
 }
 
-interface ProjectContextType {
+export interface ProjectContextType {
   projects: Project[];
   activeProject: Project | null;
   loading: boolean;
