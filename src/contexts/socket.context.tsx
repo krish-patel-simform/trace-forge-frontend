@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../hooks/useAuth";
-import { useProjects } from "../hooks/useProjects";
 
 export interface SocketContextType {
   socket: Socket | null;
@@ -13,66 +12,59 @@ export const SocketContext = createContext<SocketContextType | undefined>(
   undefined,
 );
 
+/**
+ * Derives the Socket.IO server URL from the REST API base URL.
+ * Socket.IO must connect to the HTTP server root, not an API sub-path.
+ * e.g. "http://localhost:4000/api" → "http://localhost:4000"
+ */
+function buildSocketUrl(): string {
+  const apiUrl =
+    (import.meta.env.VITE_API_URL as string | undefined) ??
+    "http://localhost:4000";
+  return apiUrl.replace(/\/api$/, "");
+}
+
+/**
+ * Module-level singleton socket instance.
+ * Created once when this module is loaded — this is the correct way to avoid
+ * the react-hooks/refs lint rule while keeping a stable socket reference in state.
+ */
+const socketSingleton: Socket = io(buildSocketUrl(), { autoConnect: false });
+
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { user } = useAuth();
-  const { activeProject } = useProjects();
 
   useEffect(() => {
-    // Determine backend URL (fallback to localhost:5000)
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
 
-    const socketInstance = io(backendUrl, {
-      autoConnect: false,
-    });
-
-    function initSocket() {
-      setSocket(socketInstance);
-
-      socketInstance.on("connect", () => {
-        setIsConnected(true);
-      });
-
-      socketInstance.on("disconnect", () => {
-        setIsConnected(false);
-      });
-    }
-
-    initSocket();
+    socketSingleton.on("connect", handleConnect);
+    socketSingleton.on("disconnect", handleDisconnect);
 
     return () => {
-      socketInstance.disconnect();
+      socketSingleton.off("connect", handleConnect);
+      socketSingleton.off("disconnect", handleDisconnect);
+      socketSingleton.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("tf_access_token");
-
-    if (socket && user && accessToken && activeProject) {
-      if (!socket.connected) {
-        socket.connect();
+    if (user) {
+      // Connect once the user is authenticated; room join is handled per-page
+      if (!socketSingleton.connected) {
+        socketSingleton.connect();
       }
-
-      // Join the project room once connected
-      socket.emit("join:project", {
-        projectId: activeProject._id,
-        token: accessToken,
-      });
-
-      return () => {
-        socket.emit("leave:project", { projectId: activeProject._id });
-      };
-    } else if (socket && socket.connected) {
-      // Disconnect if we no longer have a project or token
-      socket.disconnect();
+    } else if (socketSingleton.connected) {
+      // Disconnect when the user logs out
+      socketSingleton.disconnect();
     }
-  }, [socket, user, activeProject]);
+  }, [user]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider value={{ socket: socketSingleton, isConnected }}>
       {children}
     </SocketContext.Provider>
   );
