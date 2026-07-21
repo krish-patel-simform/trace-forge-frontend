@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Activity, Folder, Settings, LogOut } from 'lucide-react';
+import { Activity, Folder, Settings, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useProjects } from '../../hooks/useProjects';
 
@@ -35,17 +35,31 @@ export const AppLayout: React.FC = () => {
           </NavLink>
           
           {activeProject && (
-            <NavLink 
-              to={`/projects/${activeProject._id}/settings`}
-              className={({ isActive }) => 
-                `flex items-center gap-3 px-3 py-2 mt-1 rounded-lg transition-colors ${
-                  isActive ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border'
-                }`
-              }
-            >
+            <>
+              <NavLink 
+                to={`/projects/${activeProject._id}/dashboard`}
+                className={({ isActive }) => 
+                  `flex items-center gap-3 px-3 py-2 mt-1 rounded-lg transition-colors ${
+                    isActive ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border'
+                  }`
+                }
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span>Dashboard</span>
+              </NavLink>
+              
+              <NavLink 
+                to={`/projects/${activeProject._id}/settings`}
+                className={({ isActive }) => 
+                  `flex items-center gap-3 px-3 py-2 mt-1 rounded-lg transition-colors ${
+                    isActive ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border'
+                  }`
+                }
+              >
               <Settings className="w-5 h-5" />
               <span>Project Settings</span>
             </NavLink>
+            </>
           )}
         </div>
 

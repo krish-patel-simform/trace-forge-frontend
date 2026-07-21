@@ -10,6 +10,7 @@ import { RegisterPage } from './pages/auth/RegisterPage';
 import { AppLayout } from './components/layout/AppLayout';
 import { ProjectListPage } from './pages/projects/ProjectListPage';
 import { ProjectSettingsPage } from './pages/projects/ProjectSettingsPage';
+import { ProjectDashboardPage } from './pages/dashboard/ProjectDashboardPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -44,6 +45,7 @@ export const App = () => {
             }
           >
             <Route index element={<ProjectListPage />} />
+            <Route path=":id/dashboard" element={<ProjectDashboardPage />} />
             <Route path=":id/settings" element={<ProjectSettingsPage />} />
           </Route>
           
