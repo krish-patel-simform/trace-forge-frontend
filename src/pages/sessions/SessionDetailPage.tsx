@@ -7,6 +7,8 @@ export const SessionDetailPage: React.FC = () => {
   const { id, sessionId } = useParams<{ id: string; sessionId: string }>();
   const { events, loading, error } = useSessionDetail(sessionId || '');
 
+  const filteredEvents = events.filter(event => event.eventType !== 'heartbeat');
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
@@ -20,14 +22,14 @@ export const SessionDetailPage: React.FC = () => {
       {loading && <div className="text-gray-400">Loading events...</div>}
       {error && <div className="text-red-500">{error}</div>}
 
-      {!loading && events.length === 0 && (
+      {!loading && filteredEvents.length === 0 && (
         <div className="text-gray-400">No events found for this session.</div>
       )}
 
-      {events.length > 0 && (
+      {filteredEvents.length > 0 && (
         <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
           <h2 className="text-xl font-semibold text-gray-200 mb-6 border-b border-gray-800 pb-2">Event Timeline</h2>
-          <SessionTimeline events={events} />
+          <SessionTimeline events={filteredEvents} />
         </div>
       )}
     </div>

@@ -81,7 +81,7 @@ export const ProjectDashboardPage: React.FC = () => {
       try {
         const params = {
           startDate: dateRange.startDate.toISOString(),
-          endDate: dateRange.endDate.toISOString(),
+          endDate: isSilent ? new Date().toISOString() : dateRange.endDate.toISOString(),
         };
 
         const [
@@ -162,7 +162,7 @@ export const ProjectDashboardPage: React.FC = () => {
 
     const intervalId = setInterval(() => {
       fetchAnalytics(true);
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(intervalId);
   }, [isPolling, id, fetchAnalytics]);
@@ -241,7 +241,7 @@ export const ProjectDashboardPage: React.FC = () => {
               id="polling-toggle"
               enabled={isPolling}
               onChange={setIsPolling}
-              label="Auto Refresh (5s)"
+              label="Auto Refresh (10s)"
             />
             {isPolling && (
               <RefreshCw

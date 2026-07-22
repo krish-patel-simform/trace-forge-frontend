@@ -39,6 +39,7 @@ export const EngagementTab: React.FC<EngagementTabProps> = ({
             {
               header: "Element",
               accessorKey: "text",
+              sortable: true,
               cell: (item) => (
                 <div>
                   <div className="font-medium">{item.name || item.text || 'Unnamed'}</div>
@@ -48,8 +49,8 @@ export const EngagementTab: React.FC<EngagementTabProps> = ({
                 </div>
               ),
             },
-            { header: "Clicks", accessorKey: "clicks" },
-            { header: "Users", accessorKey: "uniqueUsers" },
+            { header: "Clicks", accessorKey: "clicks", sortable: true },
+            { header: "Users", accessorKey: "uniqueUsers", sortable: true },
           ]}
         />
 
@@ -62,9 +63,9 @@ export const EngagementTab: React.FC<EngagementTabProps> = ({
           keyExtractor={(item) => item.query}
           filterFn={(s, query) => !!s.query?.toLowerCase().includes(query.toLowerCase())}
           columns={[
-            { header: "Query", accessorKey: "query", cell: (item) => <span className="font-medium">"{item.query}"</span> },
-            { header: "Searches", accessorKey: "searches" },
-            { header: "Users", accessorKey: "uniqueUsers" },
+            { header: "Query", accessorKey: "query", sortable: true, cell: (item) => <span className="font-medium">"{item.query}"</span> },
+            { header: "Searches", accessorKey: "searches", sortable: true },
+            { header: "Users", accessorKey: "uniqueUsers", sortable: true },
           ]}
         />
       </div>
@@ -78,9 +79,9 @@ export const EngagementTab: React.FC<EngagementTabProps> = ({
           keyExtractor={(item) => item.eventName}
           filterFn={(e, query) => !!e.eventName?.toLowerCase().includes(query.toLowerCase())}
           columns={[
-            { header: "Event Name", accessorKey: "eventName", cell: (item) => <span className="font-medium">{item.eventName}</span> },
-            { header: "Occurrences", accessorKey: "occurrences" },
-            { header: "Users", accessorKey: "uniqueUsers" },
+            { header: "Event Name", accessorKey: "eventName", sortable: true, cell: (item) => <span className="font-medium">{item.eventName}</span> },
+            { header: "Occurrences", accessorKey: "occurrences", sortable: true },
+            { header: "Users", accessorKey: "uniqueUsers", sortable: true },
           ]}
           emptyMessage={
             <div className="p-8 text-center text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-dark-border">
