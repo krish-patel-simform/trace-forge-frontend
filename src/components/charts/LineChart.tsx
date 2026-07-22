@@ -47,7 +47,14 @@ export const LineChart: React.FC<LineChartProps> = ({
             dx={-10}
           />
           <Tooltip
-            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+            contentStyle={{ 
+              backgroundColor: 'var(--chart-tooltip-bg)',
+              color: 'var(--chart-tooltip-text)',
+              borderColor: 'var(--chart-tooltip-border)',
+              borderRadius: '8px', 
+              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
+            }}
+            itemStyle={{ color: 'var(--chart-tooltip-text)' }}
           />
           
           {series.map((s) => (

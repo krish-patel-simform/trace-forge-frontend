@@ -73,12 +73,15 @@ export const BarChart: React.FC<BarChartProps> = ({
           )}
 
           <Tooltip
-            cursor={{ fill: "#f3f4f6" }}
+            cursor={{ fill: "var(--chart-tooltip-border)" }}
             contentStyle={{
+              backgroundColor: 'var(--chart-tooltip-bg)',
+              color: 'var(--chart-tooltip-text)',
+              borderColor: 'var(--chart-tooltip-border)',
               borderRadius: "8px",
-              border: "none",
               boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
             }}
+            itemStyle={{ color: 'var(--chart-tooltip-text)' }}
           />
           <Bar
             dataKey={yKey}

@@ -16,6 +16,18 @@
 }
 
 @layer base {
+  :root {
+    --chart-tooltip-bg: #ffffff;
+    --chart-tooltip-text: #1f2937;
+    --chart-tooltip-border: #e5e7eb;
+  }
+
+  .dark {
+    --chart-tooltip-bg: var(--color-dark-card);
+    --chart-tooltip-text: #f3f4f6;
+    --chart-tooltip-border: var(--color-dark-border);
+  }
+
   body {
     @apply bg-gray-50 text-gray-900 antialiased selection:bg-primary-500 selection:text-white;
   }
