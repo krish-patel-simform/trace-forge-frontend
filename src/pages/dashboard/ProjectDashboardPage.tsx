@@ -26,6 +26,7 @@ import type {
   CustomEventData,
   ScrollData,
 } from "../../types/analytics";
+import LoadingSpinner from "../../components/loading/LoadingSpinner";
 
 export const ProjectDashboardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -73,18 +74,27 @@ export const ProjectDashboardPage: React.FC = () => {
           endDate: dateRange.endDate.toISOString(),
         };
 
-        const [overviewRes, timeSeriesRes, pagesRes, referrersRes, systemsRes, clicksRes, searchesRes, customRes, scrollRes] =
-          await Promise.all([
-            api.get(`/projects/${id}/analytics/overview`, { params }),
-            api.get(`/projects/${id}/analytics/timeseries`, { params }),
-            api.get(`/projects/${id}/analytics/pages`, { params }),
-            api.get(`/projects/${id}/analytics/referrers`, { params }),
-            api.get(`/projects/${id}/analytics/systems`, { params }),
-            api.get(`/projects/${id}/analytics/engagement/clicks`, { params }),
-            api.get(`/projects/${id}/analytics/engagement/searches`, { params }),
-            api.get(`/projects/${id}/analytics/engagement/custom`, { params }),
-            api.get(`/projects/${id}/analytics/engagement/scroll`, { params }),
-          ]);
+        const [
+          overviewRes,
+          timeSeriesRes,
+          pagesRes,
+          referrersRes,
+          systemsRes,
+          clicksRes,
+          searchesRes,
+          customRes,
+          scrollRes,
+        ] = await Promise.all([
+          api.get(`/projects/${id}/analytics/overview`, { params }),
+          api.get(`/projects/${id}/analytics/timeseries`, { params }),
+          api.get(`/projects/${id}/analytics/pages`, { params }),
+          api.get(`/projects/${id}/analytics/referrers`, { params }),
+          api.get(`/projects/${id}/analytics/systems`, { params }),
+          api.get(`/projects/${id}/analytics/engagement/clicks`, { params }),
+          api.get(`/projects/${id}/analytics/engagement/searches`, { params }),
+          api.get(`/projects/${id}/analytics/engagement/custom`, { params }),
+          api.get(`/projects/${id}/analytics/engagement/scroll`, { params }),
+        ]);
 
         setOverview(overviewRes.data);
 
@@ -104,7 +114,7 @@ export const ProjectDashboardPage: React.FC = () => {
         setTopSearches(searchesRes.data);
         setCustomEvents(customRes.data);
         setScrollDepths(scrollRes.data);
-        
+
         if (scrollRes.data.length > 0 && !scrollPathInitialized.current) {
           scrollPathInitialized.current = true;
           setSelectedScrollPath(scrollRes.data[0].path);
@@ -126,11 +136,7 @@ export const ProjectDashboardPage: React.FC = () => {
   }, [id, dateRange]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
@@ -155,26 +161,30 @@ export const ProjectDashboardPage: React.FC = () => {
       id: "overview",
       label: "Overview",
       icon: <Activity className="w-4 h-4" />,
-      content: <OverviewTab
-        overview={overview}
-        timeSeries={timeSeries}
-        topPages={topPages}
-        referrers={referrers}
-        systems={systems}
-      />,
+      content: (
+        <OverviewTab
+          overview={overview}
+          timeSeries={timeSeries}
+          topPages={topPages}
+          referrers={referrers}
+          systems={systems}
+        />
+      ),
     },
     {
       id: "engagement",
       label: "Engagement",
       icon: <Target className="w-4 h-4" />,
-      content: <EngagementTab
-        topClicks={topClicks}
-        topSearches={topSearches}
-        customEvents={customEvents}
-        scrollDepths={scrollDepths}
-        selectedScrollPath={selectedScrollPath}
-        setSelectedScrollPath={setSelectedScrollPath}
-      />,
+      content: (
+        <EngagementTab
+          topClicks={topClicks}
+          topSearches={topSearches}
+          customEvents={customEvents}
+          scrollDepths={scrollDepths}
+          selectedScrollPath={selectedScrollPath}
+          setSelectedScrollPath={setSelectedScrollPath}
+        />
+      ),
     },
     {
       id: "realtime",
