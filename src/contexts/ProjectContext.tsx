@@ -36,14 +36,31 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const ACTIVE_PROJECT_KEY = "traceforce-active-project-id";
+
+  const handleSetActiveProject: React.Dispatch<React.SetStateAction<Project | null>> = (action) => {
+    setActiveProject((prev) => {
+      const next = typeof action === "function" ? action(prev) : action;
+      if (next?._id) {
+        localStorage.setItem(ACTIVE_PROJECT_KEY, next._id);
+      } else {
+        localStorage.removeItem(ACTIVE_PROJECT_KEY);
+      }
+      return next;
+    });
+  };
+
   const fetchProjects = async () => {
     if (!user) return;
     try {
       setLoading(true);
       const res = await apiClient.get("/projects");
-      setProjects(res.data.data);
-      if (res.data.data.length > 0) {
-        setActiveProject((prev) => prev || res.data.data[0]);
+      const fetchedProjects: Project[] = res.data.data;
+      setProjects(fetchedProjects);
+      if (fetchedProjects.length > 0) {
+        const savedId = localStorage.getItem(ACTIVE_PROJECT_KEY);
+        const match = fetchedProjects.find((p) => p._id === savedId);
+        setActiveProject((prev) => prev || match || fetchedProjects[0]);
       }
     } catch (error) {
       console.error("Failed to fetch projects", error);
@@ -58,13 +75,14 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
     const loadProjects = async () => {
       if (!user) return;
       try {
-        // We do NOT call setLoading(true) here because it is initialized to true.
-        // This avoids the 'calling setState synchronously within an effect' warning.
         const res = await apiClient.get("/projects");
         if (isMounted) {
-          setProjects(res.data.data);
-          if (res.data.data.length > 0) {
-            setActiveProject((prev) => prev || res.data.data[0]);
+          const fetchedProjects: Project[] = res.data.data;
+          setProjects(fetchedProjects);
+          if (fetchedProjects.length > 0) {
+            const savedId = localStorage.getItem(ACTIVE_PROJECT_KEY);
+            const match = fetchedProjects.find((p) => p._id === savedId);
+            setActiveProject((prev) => prev || match || fetchedProjects[0]);
           }
         }
       } catch (error) {
@@ -94,7 +112,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
     const newProject = res.data.data.project;
     const apiKey = res.data.data.apiKey;
     setProjects((prev) => [...prev, newProject]);
-    setActiveProject(newProject);
+    handleSetActiveProject(newProject);
     return { project: newProject, apiKey };
   };
 
@@ -105,7 +123,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
         setProjects,
         activeProject,
         loading,
-        setActiveProject,
+        setActiveProject: handleSetActiveProject,
         fetchProjects,
         createProject,
       }}

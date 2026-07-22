@@ -31,8 +31,6 @@ export const Tabs: React.FC<TabsProps> = ({
     }
   };
 
-  const activeTab = tabs.find((t) => t.id === activeTabId);
-
   return (
     <div className={`w-full ${className}`}>
       <div className="flex space-x-1 border-b border-gray-200 dark:border-dark-border mb-6">
@@ -57,7 +55,16 @@ export const Tabs: React.FC<TabsProps> = ({
           );
         })}
       </div>
-      <div className="w-full">{activeTab ? activeTab.content : null}</div>
+      <div className="w-full">
+        {tabs.map((tab) => {
+          const isActive = tab.id === activeTabId;
+          return (
+            <div key={tab.id} className={isActive ? "block" : "hidden"}>
+              {tab.content}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

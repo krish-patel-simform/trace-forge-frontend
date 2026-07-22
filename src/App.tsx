@@ -4,6 +4,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./hooks/useAuth";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { SocketProvider } from "./contexts/socket.context";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Pages
 import { LoginPage } from "./pages/auth/LoginPage";
@@ -44,47 +45,49 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 export const App = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          <Route
-            path="/projects"
-            element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <SocketProvider>
-                    <AppLayout />
-                  </SocketProvider>
-                </ProjectProvider>
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<ProjectListPage />} />
             <Route
-              path=":id/dashboard"
+              path="/projects"
               element={
-                <React.Suspense fallback={<LoadingSpinner />}>
-                  <ProjectDashboardPage />
-                </React.Suspense>
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <SocketProvider>
+                      <AppLayout />
+                    </SocketProvider>
+                  </ProjectProvider>
+                </ProtectedRoute>
               }
-            />
-            <Route path=":id/settings" element={<ProjectSettingsPage />} />
-            <Route path=":id/sessions" element={<SessionListPage />} />
-            <Route
-              path=":id/sessions/:sessionId"
-              element={<SessionDetailPage />}
-            />
-            <Route path=":id/users" element={<UserListPage />} />
-            <Route path=":id/users/:userId" element={<UserProfilePage />} />
-          </Route>
+            >
+              <Route index element={<ProjectListPage />} />
+              <Route
+                path=":id/dashboard"
+                element={
+                  <React.Suspense fallback={<LoadingSpinner />}>
+                    <ProjectDashboardPage />
+                  </React.Suspense>
+                }
+              />
+              <Route path=":id/settings" element={<ProjectSettingsPage />} />
+              <Route path=":id/sessions" element={<SessionListPage />} />
+              <Route
+                path=":id/sessions/:sessionId"
+                element={<SessionDetailPage />}
+              />
+              <Route path=":id/users" element={<UserListPage />} />
+              <Route path=":id/users/:userId" element={<UserProfilePage />} />
+            </Route>
 
-          <Route path="/" element={<Navigate to="/projects" replace />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+            <Route path="/" element={<Navigate to="/projects" replace />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 };
 
