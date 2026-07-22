@@ -37,9 +37,9 @@ export const SessionTimeline: React.FC<{ events: Event[] }> = ({ events }) => {
               <div className="flex justify-between items-start mb-2">
                 <h4 className="font-semibold text-gray-100 flex items-center gap-2">
                   {label}
-                  {event.payload?.pageName && (
+                  {Boolean(event.payload?.pageName) && (
                     <span className="text-sm font-normal text-blue-400 bg-blue-900/30 px-2 py-0.5 rounded border border-blue-800/50">
-                      {String(event.payload.pageName)}
+                      {String(event.payload!.pageName)}
                     </span>
                   )}
                   <span className="text-sm font-normal text-gray-400 bg-gray-900 px-2 py-0.5 rounded border border-gray-800">
