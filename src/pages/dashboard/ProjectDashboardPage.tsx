@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Activity, Target, Zap } from "lucide-react";
+import { Activity, Target, Zap, RefreshCw } from "lucide-react";
 import { useSocketRoom } from "../../hooks/useSocketRoom";
 import { apiClient as api } from "../../api/client";
 import { Tabs, type Tab } from "../../components/ui/Tabs";
+import { ToggleSwitch } from "../../components/ui/ToggleSwitch";
 import { LiveIndicator } from "../../components/realtime/LiveIndicator";
 import { LiveUserCount } from "../../components/realtime/LiveUserCount";
 import { LiveEventFeed } from "../../components/realtime/LiveEventFeed";
@@ -42,6 +43,8 @@ export const ProjectDashboardPage: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [overview, setOverview] = useState<OverviewData | null>(null);
@@ -60,15 +63,22 @@ export const ProjectDashboardPage: React.FC = () => {
   const [scrollDepths, setScrollDepths] = useState<ScrollData[]>([]);
   const [selectedScrollPath, setSelectedScrollPath] = useState<string>("");
   // Ref sentinel: tracks whether we've set the initial scroll path selection
-  const scrollPathInitialized = React.useRef(false);
+  const scrollPathInitialized = useRef(false);
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
+  const handleDateRangeChange = (newRange: DateRange) => {
+    setLoading(true);
+    setDateRange(newRange);
+  };
+
+  const fetchAnalytics = useCallback(
+    async (isSilent = false) => {
       if (!id) return;
-      try {
-        setLoading(true);
-        setError(null);
+      setError(null);
+      if (isSilent) {
+        setIsRefreshing(true);
+      }
 
+      try {
         const params = {
           startDate: dateRange.startDate.toISOString(),
           endDate: dateRange.endDate.toISOString(),
@@ -128,12 +138,34 @@ export const ProjectDashboardPage: React.FC = () => {
             : "Failed to load dashboard data";
         setError(errorMsg || "Failed to load dashboard data");
       } finally {
-        setLoading(false);
+        if (!isSilent) {
+          setLoading(false);
+        } else {
+          setIsRefreshing(false);
+        }
       }
-    };
+    },
+    [id, dateRange],
+  );
 
-    fetchAnalytics();
-  }, [id, dateRange]);
+  // Initial fetch when project ID or date range changes
+  useEffect(() => {
+    const loadData = async () => {
+      await fetchAnalytics(false);
+    };
+    void loadData();
+  }, [fetchAnalytics]);
+
+  // Setup auto-polling every 5 seconds when toggled ON
+  useEffect(() => {
+    if (!isPolling || !id) return;
+
+    const intervalId = setInterval(() => {
+      fetchAnalytics(true);
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [isPolling, id, fetchAnalytics]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -196,17 +228,35 @@ export const ProjectDashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Analytics Dashboard
           </h1>
           <LiveIndicator />
         </div>
-        <DateRangePicker value={dateRange} onChange={setDateRange} />
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700">
+            <ToggleSwitch
+              id="polling-toggle"
+              enabled={isPolling}
+              onChange={setIsPolling}
+              label="Auto Refresh (5s)"
+            />
+            {isPolling && (
+              <RefreshCw
+                className={`w-3.5 h-3.5 text-indigo-500 transition-transform ${
+                  isRefreshing ? "animate-spin" : ""
+                }`}
+              />
+            )}
+          </div>
+          <DateRangePicker value={dateRange} onChange={handleDateRangeChange} />
+        </div>
       </div>
 
       <Tabs tabs={tabs} />
     </div>
   );
 };
+
