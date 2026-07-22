@@ -4,13 +4,13 @@ import { useSessionDetail } from '../../hooks/useSessions';
 import { SessionTimeline } from '../../components/sessions/SessionTimeline';
 
 export const SessionDetailPage: React.FC = () => {
-  const { sessionId } = useParams<{ sessionId: string }>();
+  const { id, sessionId } = useParams<{ id: string; sessionId: string }>();
   const { events, loading, error } = useSessionDetail(sessionId || '');
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <Link to=".." className="text-blue-500 hover:underline mb-2 inline-block">
+        <Link to={`/projects/${id}/sessions`} className="text-blue-500 hover:underline mb-2 inline-block">
           &larr; Back to Sessions
         </Link>
         <h1 className="text-2xl font-bold text-gray-100 mb-1">Session Detail</h1>
