@@ -17,7 +17,7 @@ export const SessionTimeline: React.FC<{ events: Event[] }> = ({ events }) => {
       {events.map((event, index) => {
         let icon = '⚡';
         let label = event.eventType;
-        if (event.eventType === 'pageview') {
+        if (event.eventType === 'page_view' || event.eventType === 'pageview') {
           icon = '📄';
           label = 'Page View';
         } else if (event.eventType === 'click') {
@@ -37,6 +37,11 @@ export const SessionTimeline: React.FC<{ events: Event[] }> = ({ events }) => {
               <div className="flex justify-between items-start mb-2">
                 <h4 className="font-semibold text-gray-100 flex items-center gap-2">
                   {label}
+                  {event.payload?.pageName && (
+                    <span className="text-sm font-normal text-blue-400 bg-blue-900/30 px-2 py-0.5 rounded border border-blue-800/50">
+                      {String(event.payload.pageName)}
+                    </span>
+                  )}
                   <span className="text-sm font-normal text-gray-400 bg-gray-900 px-2 py-0.5 rounded border border-gray-800">
                     {event.context?.path || '/'}
                   </span>
@@ -50,7 +55,7 @@ export const SessionTimeline: React.FC<{ events: Event[] }> = ({ events }) => {
                 <div className="mt-3 bg-gray-900/50 rounded p-3 border border-gray-800">
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {Object.entries(event.payload).map(([key, value]) => {
-                      if (key === 'sessionId' || key === 'userId') return null;
+                      if (key === 'sessionId' || key === 'userId' || key === 'pageName') return null;
                       return (
                         <div key={key} className="flex flex-col">
                           <span className="text-gray-500 text-xs font-mono">{key}</span>
